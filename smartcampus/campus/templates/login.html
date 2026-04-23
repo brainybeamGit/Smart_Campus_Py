@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Smart Campus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ksv-blue: #004a8e;
+            --ksv-yellow: #febd17;
+            --glass-bg: rgba(139, 137, 137, 0.15);
+        }
+
+        body {
+            margin: 0; 
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(rgba(0, 74, 142, 0.85), rgba(0, 42, 82, 0.9)), 
+                        url('https://images.pexels.com/photos/256490/pexels-photo-256490.jpeg?auto=compress&cs=tinysrgb&w=1280');
+            background-size: cover; 
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .login-card {
+            background: var(--glass-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px; 
+            border-radius: 30px; 
+            width: 380px;
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            color: white; 
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            transition: 0.4s;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .login-card:hover {
+            border-color: var(--ksv-yellow);
+            transform: translateY(-5px);
+        }
+
+        .logo-circle { 
+            width: 70px;
+            height: 70px;
+            background: var(--ksv-yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .logo-circle i { font-size: 35px; color: var(--ksv-blue); }
+
+        h2 { margin: 0 0 5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; font-size: 20px; }
+        p.subtitle { font-size: 12px; color: #ddd; margin-bottom: 25px; }
+
+        .msg-error {
+            background: rgba(255, 60, 60, 0.25);
+            border-left: 5px solid #ff4d4d;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: left;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% {transform: translateX(0);}
+            25% {transform: translateX(-5px);}
+            75% {transform: translateX(5px);}
+        }
+
+        .input-group { position: relative; margin-bottom: 15px; }
+        .input-group i { 
+            position: absolute; left: 18px; top: 50%; 
+            transform: translateY(-50%); color: var(--ksv-blue);
+            font-size: 16px; z-index: 10;
+        }
+
+        input {
+            width: 100%; padding: 12px 15px 12px 50px; 
+            border-radius: 50px; border: none;
+            background: rgba(255, 255, 255, 0.95); 
+            box-sizing: border-box; font-size: 14px;
+            outline: none; color: #333; font-weight: 500;
+        }
+
+        .login-btn {
+            width: 100%; padding: 12px; border: none; border-radius: 50px;
+            background: var(--ksv-yellow); color: var(--ksv-blue); 
+            font-weight: 700; font-size: 15px; cursor: pointer;
+            transition: 0.3s; margin-top: 10px; text-transform: uppercase;
+        }
+
+        .login-btn:hover { background: #fff; transform: scale(1.02); }
+
+        .admin-divider {
+            margin: 25px 0 15px;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            font-size: 12px;
+            color: #ccc;
+        }
+        .admin-divider::before, .admin-divider::after {
+            content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .admin-divider:not(:empty)::before { margin-right: .5em; }
+        .admin-divider:not(:empty)::after { margin-left: .5em; }
+
+        .admin-link-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--ksv-yellow);
+            color: var(--ksv-yellow); padding: 10px; border-radius: 50px;
+            text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.3s;
+        }
+        .admin-link-btn:hover { background: var(--ksv-yellow); color: var(--ksv-blue); }
+
+        .footer-links { margin-top: 20px; font-size: 12px; color: #eee; }
+        .footer-links a { color: var(--ksv-yellow); text-decoration: none; font-weight: 600; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="logo-circle">
+            <i class="fas fa-atom"></i>
+        </div>
+        <h2>Smart Campus</h2>
+        <p class="subtitle">Secure Academic Portal Access</p>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg-error">
+                    <i class="fas fa-exclamation-triangle"></i> {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="POST">
+            {% csrf_token %}
+            <div class="input-group">
+                <i class="fas fa-user-circle"></i>
+                <input type="text" name="username" placeholder="Username / Enrollment" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-key"></i>
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+        </form>
+
+        <div class="admin-divider">STAFF ONLY</div>
+        
+        <a href="{% url 'admin_login' %}" class="admin-link-btn">
+            <i class="fas fa-user-shield"></i> Master Admin Portal
+        </a>
+        
+        <div class="footer-links">
+            <a href="{% url 'password_reset' %}" style="font-weight: 400; font-size: 11px; opacity: 0.7;">Forgot Password?</a>
+            <br><br>
+            <span style="font-size: 11px; opacity: 0.6;">Need an account? Contact your administrator.</span>
+        </div>
+    </div>
+
+</body>
+</html>

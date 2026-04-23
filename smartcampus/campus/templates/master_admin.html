@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Admin | Smart Campus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --ksv-blue: #004a8e; --ksv-yellow: #febd17; --bg-light: #f4f7fe; --success: #10b981; --danger: #ef4444; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: var(--bg-light); display: flex; }
+        
+        /* Sidebar Design */
+        .sidebar { width: 280px; background: var(--ksv-blue); height: 100vh; color: white; position: fixed; padding: 20px; box-sizing: border-box; transition: 0.3s; z-index: 1000; }
+        .sidebar h2 { border-bottom: 2px solid var(--ksv-yellow); padding-bottom: 10px; font-size: 20px; text-align: center; margin-bottom: 30px; }
+        .nav-item { display: flex; align-items: center; color: rgba(255,255,255,0.8); text-decoration: none; padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; transition: 0.3s; cursor: pointer; }
+        .nav-item:hover { background: var(--ksv-yellow); color: var(--ksv-blue); font-weight: bold; transform: translateX(5px); }
+        .nav-item i { margin-right: 12px; width: 20px; text-align: center; }
+
+        /* Main Content */
+        .content { margin-left: 280px; padding: 40px; width: calc(100% - 280px); box-sizing: border-box; }
+        
+        /* Stats Grid */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.02); margin-bottom: 30px; position: relative; overflow: hidden; }
+        
+        .stat-card { border-bottom: 5px solid var(--ksv-yellow); transition: 0.4s ease; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card i { position: absolute; right: 20px; bottom: 20px; font-size: 40px; opacity: 0.1; color: var(--ksv-blue); }
+        
+        /* Table Design */
+        .table-container { margin-top: 15px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; }
+        th { background: #f8fafc; color: #64748b; padding: 15px; text-align: left; font-size: 13px; text-transform: uppercase; border-bottom: 2px solid #edf2f7; }
+        td { padding: 15px; border-bottom: 1px solid #edf2f7; color: #334155; font-size: 14px; }
+        tr:hover { background-color: #f1f5f9; }
+
+        /* Buttons & Badges */
+        .btn-add { background: var(--ksv-yellow); color: var(--ksv-blue); padding: 12px 25px; border-radius: 30px; text-decoration: none; font-weight: bold; float: right; transition: 0.3s; box-shadow: 0 4px 15px rgba(254, 189, 23, 0.3); border: none; cursor: pointer; }
+        .btn-add:hover { background: #e5a915; transform: scale(1.05); }
+        
+        .action-btn { padding: 8px; border-radius: 8px; text-decoration: none; margin-right: 5px; font-size: 16px; border: none; cursor: pointer; }
+        .edit-btn { color: var(--ksv-blue); background: rgba(0, 74, 142, 0.1); }
+        .delete-btn { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        
+        .badge-pending { background: #fff7ed; color: #c2410c; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+        .receipt-tag { background: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 5px; font-size: 12px; font-weight: 600; }
+
+        /* Notice Form Style */
+        .notice-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 10px; font-family: inherit; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2><i class="fas fa-university"></i> SMART CAMPUS</h2>
+        <a href="{% url 'master_admin' %}" class="nav-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <a href="{% url 'students_page' %}" class="nav-item"><i class="fas fa-user-graduate"></i> Students</a>
+        <a href="{% url 'faculty_page' %}" class="nav-item"><i class="fas fa-chalkboard-teacher"></i> Faculty</a>
+        <a href="{% url 'courses_page' %}" class="nav-item"><i class="fas fa-book"></i> Courses</a>
+        <a href="{% url 'mark_attendance' %}" class="nav-item"><i class="fas fa-clipboard-check"></i> Attendance</a>
+        <a href="{% url 'fee_records' %}" class="nav-item"><i class="fas fa-file-invoice-dollar"></i> Fee Records</a>
+        <a href="{% url 'master_admin' %}#mess-section" class="nav-item"><i class="fas fa-utensils"></i> Mess Management</a>
+        <a href="{% url 'master_admin' %}#leave-section" class="nav-item"><i class="fas fa-calendar-check"></i> Leave Requests</a>
+        <a href="{% url 'master_admin' %}#complaint-section" class="nav-item"><i class="fas fa-headset"></i> Complaints</a>
+        <a href="{% url 'events_page' %}" class="nav-item"><i class="fas fa-calendar-day"></i> Events</a>
+        
+        <div style="position: absolute; bottom: 30px; width: calc(100% - 40px);">
+            <a href="{% url 'logout' %}" class="nav-item" style="color: #ff7e7e;"><i class="fas fa-power-off"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <a href="{% url 'add_student' %}" class="btn-add"><i class="fas fa-plus"></i> Add New Student</a>
+        <h1 style="color: var(--ksv-blue); margin-top: 0; font-weight: 700;">Admin Control Center</h1>
+
+        <div class="stat-grid">
+            <div class="card stat-card">
+                <p style="color: #64748b; margin: 0; font-weight: 600; font-size: 12px; text-transform: uppercase;">Total Students</p>
+                <h2 style="margin: 10px 0; color: var(--ksv-blue); font-size: 28px;">{{ total_students }}</h2>
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="card stat-card" style="border-bottom-color: var(--success);">
+                <p style="color: #64748b; margin: 0; font-weight: 600; font-size: 12px; text-transform: uppercase;">Pending Leaves</p>
+                <h2 style="margin: 10px 0; color: var(--ksv-blue); font-size: 28px;">{{ pending_leaves|default:"0" }}</h2>
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="card stat-card" style="border-bottom-color: #8b5cf6;">
+                <p style="color: #64748b; margin: 0; font-weight: 600; font-size: 12px; text-transform: uppercase;">Fees Collected</p>
+                <h2 style="margin: 10px 0; color: var(--ksv-blue); font-size: 28px;">₹{{ total_collected|default:"0" }}</h2>
+                <i class="fas fa-wallet"></i>
+            </div>
+            <div class="card stat-card" style="border-bottom-color: var(--danger);">
+                <p style="color: #64748b; margin: 0; font-weight: 600; font-size: 12px; text-transform: uppercase;">Complaints</p>
+                <h2 style="margin: 10px 0; color: var(--ksv-blue); font-size: 28px;">{{ pending_complaints }}</h2>
+                <i class="fas fa-headset"></i>
+            </div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(to right, #ffffff, #fefce8);">
+            <h3 style="margin-top:0; color: var(--ksv-blue);"><i class="fas fa-bullhorn"></i> Broadcast Notice</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="title" placeholder="Notice Title (e.g. Holiday Announcement)" class="notice-input" required>
+                <textarea name="message" placeholder="Write your message here..." class="notice-input" style="height: 80px;" required></textarea>
+                <label style="font-size: 13px; color: #64748b;">
+                    <input type="checkbox" name="is_urgent"> Mark as Urgent 🚨
+                </label>
+                <button type="submit" name="post_notice" class="btn-add" style="float:none; margin-left: 20px; padding: 10px 25px;">Post Now</button>
+            </form>
+        </div>
+
+        <div class="card" id="mess-section" style="border-left: 6px solid var(--ksv-yellow);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--ksv-blue);"><i class="fas fa-utensils"></i> Current Mess Menu</h3>
+                <a href="{% url 'master_admin' %}#mess-section" class="btn-add" style="float: none; padding: 8px 20px; font-size: 13px;">Edit Menu</a>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Day</th>
+                            <th>Breakfast</th>
+                            <th>Lunch</th>
+                            <th>Dinner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for menu in current_mess_menu %}
+                        <tr>
+                            <td><b>{{ menu.day }}</b></td>
+                            <td>{{ menu.breakfast }}</td>
+                            <td>{{ menu.lunch }}</td>
+                            <td>{{ menu.dinner }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">Bhai, Mess Menu update karlo!</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card" id="leave-section" style="border-left: 6px solid var(--success);">
+            <h3 style="margin-bottom: 20px; color: var(--ksv-blue);"><i class="fas fa-calendar-check"></i> Pending Leave Requests</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Reason</th>
+                            <th>Dates</th>
+                            <th style="text-align: center;">Status/Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for leave in all_leaves %}
+                        <tr>
+                            <td><b>{{ leave.user.username }}</b></td>
+                            <td style="max-width: 200px;">{{ leave.reason|truncatechars:50 }}</td>
+                            <td><small>{{ leave.start_date }} to {{ leave.end_date }}</small></td>
+                            <td style="text-align: center;">
+                                <span class="badge-pending">{{ leave.status }}</span>
+                                <a href="/admin/campus/leaveapplication/{{ leave.id }}/change/" class="action-btn edit-btn"><i class="fas fa-check-circle"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" style="text-align: center; padding: 20px; color: #94a3b8;">Bhai, koi pending leave nahi hai.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin: 0; color: var(--ksv-blue); display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-list-ul"></i> Student Management
+            </h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td><span class="receipt-tag">{{ s.roll_no }}</span></td>
+                            <td><b>{{ s.name }}</b></td>
+                            <td>{{ s.course|default:"B.Tech / CS" }}</td>
+                            <td style="text-align: center;">
+                                <a href="{% url 'edit_student' s.id %}" class="action-btn edit-btn"><i class="fas fa-user-edit"></i></a>
+                                <a href="{% url 'delete_student' s.id %}" class="action-btn delete-btn" onclick="return confirm('Pakka uda du?')"><i class="fas fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

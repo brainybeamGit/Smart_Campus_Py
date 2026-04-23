@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Library | Digital Issue Portal</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f8fafc; }
+        #reader { 
+            border: none !important; 
+            border-radius: 24px !important; 
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+        #reader__dashboard_section_csr button {
+            background-color: #6366f1 !important;
+            border-radius: 12px !important;
+            padding: 10px 20px !important;
+            text-transform: uppercase;
+            font-size: 12px !important;
+            font-weight: 700 !important;
+            letter-spacing: 1px;
+            border: none !important;
+        }
+        .scanner-overlay {
+            position: relative;
+            border: 4px solid #6366f1;
+            border-radius: 28px;
+            padding: 10px;
+            background: white;
+        }
+        .scan-glow {
+            animation: glow 2s infinite;
+        }
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6); }
+            100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+<div class="max-w-5xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+        <div>
+            <a href="{% url 'home' %}" class="text-indigo-600 font-bold flex items-center gap-2 mb-2 hover:translate-x-1 transition-all">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <h1 class="text-4xl font-black text-slate-900 tracking-tight">Smart Library</h1>
+            <p class="text-slate-500 font-medium">Scan QR Code to Issue or Return Books</p>
+        </div>
+        <div class="bg-indigo-600 text-white p-4 rounded-3xl shadow-xl shadow-indigo-200 flex items-center gap-4">
+            <div class="h-12 w-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl">
+                <i class="fas fa-book"></i>
+            </div>
+            <div>
+                <div class="text-[10px] font-black uppercase opacity-80 tracking-widest">Active Issues</div>
+                <div class="text-2xl font-bold">{{ history|length }} Books</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="h-10 w-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <h3 class="text-xl font-black text-slate-800">Scanner View</h3>
+            </div>
+
+            <div class="scanner-overlay scan-glow mb-8">
+                <div id="reader"></div>
+            </div>
+
+            <form action="" method="POST" id="scan-form" class="space-y-4">
+                {% csrf_token %}
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Book Title</label>
+                    <div class="relative">
+                        <i class="fas fa-bookmark absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="book_name" id="book_name" placeholder="E.g. Advanced Python Pro" required 
+                               class="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all font-bold text-slate-700">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Student ID (Auto-Filled)</label>
+                    <div class="relative">
+                        <i class="fas fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="qr_data" id="qr_data" placeholder="Scan QR to Fill" required readonly
+                               class="w-full pl-12 pr-4 py-4 bg-indigo-50 border border-indigo-100 rounded-2xl font-black text-indigo-700 outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-[2rem] font-black shadow-xl hover:bg-indigo-600 transition-all transform active:scale-95 flex items-center justify-center gap-3 group">
+                    <span>Issue This Book</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform"></i>
+                </button>
+                <p id="status-text" class="text-center text-sm font-bold text-emerald-500 mt-2"></p>
+            </form>
+        </div>
+
+        <div class="space-y-6">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 min-h-[500px]">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-xl font-black text-slate-800">Recent Activity</h3>
+                    <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-lg text-[10px] font-black tracking-widest uppercase">
+                        14-Day Limit
+                    </span>
+                </div>
+
+                <div class="space-y-4">
+                    {% for item in history %}
+                    <div class="flex items-center justify-between p-5 bg-slate-50 rounded-3xl border border-slate-100 hover:border-indigo-200 transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="h-12 w-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div>
+                                <div class="font-black text-slate-800 text-sm">{{ item.book_name }}</div>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">ID: {{ item.student.student_id }}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[10px] font-black text-rose-500 uppercase">Return By</div>
+                            <div class="text-xs font-bold text-slate-600">{{ item.return_date }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="flex flex-col items-center justify-center py-20 text-slate-300">
+                        <i class="fas fa-ghost text-5xl mb-4"></i>
+                        <p class="font-bold">No books out right now!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 p-6 rounded-[2rem] border border-indigo-100">
+                <h4 class="text-indigo-800 font-black text-xs uppercase tracking-widest mb-2 flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i> Quick Info
+                </h4>
+                <p class="text-indigo-600 text-xs font-medium leading-relaxed">
+                    Bhai, agar return date nikal gayi toh fine lagega. Books ko dhyan se rakhna!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function onScanSuccess(decodedText, decodedResult) {
+        document.getElementById('qr_data').value = decodedText;
+        document.getElementById('status-text').innerHTML = "<i class='fas fa-check-circle'></i> ID Detected: " + decodedText;
+        
+        // Visual feedback
+        document.getElementById('qr_data').parentElement.classList.add('scale-105');
+        setTimeout(() => document.getElementById('qr_data').parentElement.classList.remove('scale-105'), 200);
+
+        let book = document.getElementById('book_name').value;
+        if(book.trim() !== "") {
+            // Auto submit 
+            setTimeout(() => document.getElementById('scan-form').submit(), 500);
+        } else {
+            // Focus on book name if empty
+            document.getElementById('book_name').focus();
+        }
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", 
+        { fps: 20, qrbox: {width: 250, height: 250} },
+        /* verbose= */ false
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>

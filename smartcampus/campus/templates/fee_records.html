@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Records | Smart Campus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f4f7fe; }
+        .custom-input { transition: all 0.25s; }
+        .custom-input:focus { border-color: #004a8e; box-shadow: 0 0 0 4px rgba(0, 74, 142, 0.1); }
+    </style>
+</head>
+<body class="p-4 md:p-10 min-h-screen">
+
+    <div class="max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 bg-white p-6 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-white gap-4">
+            <div>
+                <a href="{% url 'master_admin' %}" class="group text-indigo-600 font-bold text-xs flex items-center gap-2 mb-2">
+                    <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Back to Dashboard
+                </a>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">
+                    <i class="fas fa-file-invoice-dollar text-indigo-500 mr-2"></i> Fee Records
+                </h1>
+                <p class="text-slate-500 text-sm">Manage fees course-wise and student-wise.</p>
+            </div>
+            <div class="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-xs font-black">
+                <i class="fas fa-check-circle"></i> {{ total_count }} Records
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                    <div class="p-4 rounded-2xl flex items-center gap-3 text-sm font-semibold
+                        {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-700
+                        {% elif message.tags == 'warning' %}bg-amber-50 border border-amber-200 text-amber-700
+                        {% else %}bg-rose-50 border border-rose-200 text-rose-700{% endif %}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-circle{% else %}exclamation-triangle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-indigo-600 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Collected</p>
+                <h2 class="text-2xl font-black text-slate-800 mt-2">₹{{ total_collected|floatformat:0 }}</h2>
+                <i class="fas fa-wallet text-indigo-200 text-3xl absolute right-6 top-6"></i>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-emerald-500 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Today's Collection</p>
+                <h2 class="text-2xl font-black text-slate-800 mt-2">₹{{ today_collection|floatformat:0 }}</h2>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-amber-500 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Payments</p>
+                <h2 class="text-2xl font-black text-slate-800 mt-2">{{ pending_count }}</h2>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border-l-4 border-rose-500 shadow-sm">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Records</p>
+                <h2 class="text-2xl font-black text-slate-800 mt-2">{{ total_count }}</h2>
+            </div>
+        </div>
+
+        <!-- Add New Fee Entry -->
+        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-white mb-6 overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 px-8 py-5 text-white">
+                <h3 class="text-lg font-black flex items-center gap-3">
+                    <i class="fas fa-plus-circle"></i> Add New Fee Entry
+                </h3>
+                <p class="text-indigo-200 text-xs">Select a student and enter payment details. Receipt number is generated automatically.</p>
+            </div>
+            <form method="POST" class="p-8">
+                {% csrf_token %}
+                <input type="hidden" name="save_payment" value="1">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Course <span class="text-rose-500">*</span></label>
+                        <select id="addCourse" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none custom-input font-semibold text-slate-700 text-sm" onchange="filterStudents()" required>
+                            <option value="">— Select a course —</option>
+                            {% for c in courses %}
+                                <option value="{{ c.course_name }}">{{ c.course_name }} ({{ c.course_code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Student <span class="text-rose-500">*</span></label>
+                        <select id="addStudent" name="student_id" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none custom-input font-semibold text-slate-700 text-sm" required>
+                            <option value="">— Pick a course first —</option>
+                            {% for s in students %}
+                                <option value="{{ s.id }}" data-course="{{ s.course|default_if_none:'' }}" hidden>{{ s.name }} (Roll: {{ s.roll_no }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Fee Type <span class="text-rose-500">*</span></label>
+                        <select name="fee_type" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none custom-input font-semibold text-slate-700 text-sm" required>
+                            {% for key, label in fee_types %}
+                                <option value="{{ key }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Amount (₹) <span class="text-rose-500">*</span></label>
+                        <input type="number" name="amount" step="0.01" min="0" placeholder="e.g. 5000" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none custom-input font-semibold text-slate-700 text-sm" required>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Status</label>
+                        <select name="status" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none custom-input font-semibold text-slate-700 text-sm">
+                            {% for s in status_choices %}
+                                <option value="{{ s }}" {% if s == 'Pending' %}selected{% endif %}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-3 flex items-end">
+                        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fas fa-save"></i> Save Fee Entry
+                        </button>
+                    </div>
+                </div>
+
+                <script>
+                    // Cascading dropdown: filter Student options based on selected Course
+                    function filterStudents() {
+                        const course = document.getElementById('addCourse').value;
+                        const studentSelect = document.getElementById('addStudent');
+                        const options = studentSelect.querySelectorAll('option[data-course]');
+                        let visibleCount = 0;
+
+                        options.forEach(opt => {
+                            const sCourse = (opt.getAttribute('data-course') || '').toLowerCase();
+                            if (!course) {
+                                opt.hidden = true;
+                            } else if (sCourse.startsWith(course.toLowerCase())) {
+                                opt.hidden = false;
+                                visibleCount++;
+                            } else {
+                                opt.hidden = true;
+                            }
+                        });
+
+                        // Reset placeholder + selection
+                        const placeholder = studentSelect.querySelector('option[value=""]');
+                        if (course) {
+                            placeholder.textContent = visibleCount
+                                ? `— Select a student (${visibleCount} available) —`
+                                : '— No students in this course —';
+                        } else {
+                            placeholder.textContent = '— Pick a course first —';
+                        }
+                        studentSelect.value = '';
+                    }
+                </script>
+            </form>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filter by Course</label>
+                    <select name="course" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm font-semibold text-slate-700">
+                        <option value="">All Courses</option>
+                        {% for c in courses %}
+                            <option value="{{ c.course_name }}" {% if filter_course == c.course_name %}selected{% endif %}>{{ c.course_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filter by Student</label>
+                    <select name="student" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm font-semibold text-slate-700">
+                        <option value="">All Students</option>
+                        {% for s in students %}
+                            <option value="{{ s.id }}" {% if filter_student == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }} ({{ s.roll_no }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filter by Fee Type</label>
+                    <select name="fee_type" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm font-semibold text-slate-700">
+                        <option value="">All Types</option>
+                        {% for key, label in fee_types %}
+                            <option value="{{ key }}" {% if filter_type == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Filter by Status</label>
+                    <select name="status" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none text-sm font-semibold text-slate-700">
+                        <option value="">All Statuses</option>
+                        {% for s in status_choices %}
+                            <option value="{{ s }}" {% if filter_status == s %}selected{% endif %}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white px-5 py-3 rounded-xl font-black text-xs uppercase transition-all">
+                        <i class="fas fa-filter"></i> Apply
+                    </button>
+                    <a href="{% url 'fee_records' %}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-3 rounded-xl font-black text-xs uppercase transition-all text-center">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Records Table -->
+        <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <div class="bg-slate-900 px-8 py-5 text-white flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-list-alt"></i>
+                    <h4 class="font-black uppercase tracking-widest text-sm">Fee Transaction History</h4>
+                </div>
+                <span class="text-slate-400 text-[10px] uppercase font-bold">{{ records|length }} result(s)</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Receipt</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Student</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Course</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Fee Type</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                            <th class="p-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for r in records %}
+                        <tr class="hover:bg-indigo-50/30 transition-all">
+                            <td class="p-5">
+                                <span class="text-xs font-black text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">{{ r.receipt_no }}</span>
+                            </td>
+                            <td class="p-5">
+                                <div class="font-black text-slate-800 text-sm">{{ r.student.name }}</div>
+                                <div class="text-[10px] text-slate-400 font-bold">Roll: {{ r.student.roll_no }}</div>
+                            </td>
+                            <td class="p-5 text-xs font-semibold text-slate-600">{{ r.student.course|default:"—" }}</td>
+                            <td class="p-5">
+                                <span class="text-[10px] font-black text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg uppercase">{{ r.fee_type }}</span>
+                            </td>
+                            <td class="p-5 text-right font-black text-slate-900 text-sm">₹{{ r.amount|floatformat:0 }}</td>
+                            <td class="p-5 text-center">
+                                {% if r.status == 'Paid' %}
+                                    <span class="bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-emerald-200">Paid</span>
+                                {% elif r.status == 'Pending' %}
+                                    <span class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-amber-200">Pending</span>
+                                {% else %}
+                                    <span class="bg-rose-100 text-rose-700 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-rose-200">{{ r.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-5 text-center text-xs font-semibold text-slate-500">{{ r.date_paid }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="p-16 text-center">
+                                <i class="fas fa-inbox text-4xl text-slate-200 mb-3 block"></i>
+                                <p class="font-black text-slate-400 uppercase tracking-widest text-xs">No Fee Records Found</p>
+                                <p class="text-slate-400 text-xs mt-1">Use the form above to add your first entry.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

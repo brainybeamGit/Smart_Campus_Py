@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Course | Smart Campus</title>
+    </head>
+<body>
+    <div class="card-box" style="margin: 50px auto; max-width: 600px; padding: 30px; background: white; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        <h2 style="color: #004a8e;"><i class="fas fa-edit"></i> Update Course Details</h2>
+        <hr>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div style="margin-bottom: 15px;">
+                {{ form.as_p }} </div>
+
+            <button type="submit" style="background: #febd17; color: #004a8e; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%;">
+                UPDATE COURSE NOW
+            </button>
+            
+            <p style="margin-top: 15px; text-align: center;">
+                <a href="{% url 'courses_page' %}" style="color: #666; text-decoration: none;">Cancel and Go Back</a>
+            </p>
+        </form>
+    </div>
+</body>
+</html>

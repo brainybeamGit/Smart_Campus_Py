@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Scanner | Smart Campus</title>
+    
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --sidebar-bg: #111827;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f8fafc; display: flex; }
+
+        /* Sidebar (Same as Dashboard) */
+        .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; color: white; z-index: 1000; }
+        .sidebar-header { padding: 40px 25px; display: flex; align-items: center; gap: 15px; font-size: 22px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-symbol { background: var(--primary); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+        .sidebar-menu { padding: 20px 0; }
+        .sidebar a { display: flex; align-items: center; color: #94a3b8; padding: 14px 25px; text-decoration: none; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(79, 70, 229, 0.1); color: white; border-left: 4px solid var(--primary); }
+        .sidebar a i { width: 25px; margin-right: 12px; }
+
+        .content { margin-left: 260px; width: 100%; padding: 40px; display: flex; flex-direction: column; align-items: center; }
+
+        .scanner-card { 
+            max-width: 550px; width: 100%; background: white; padding: 35px; 
+            border-radius: 35px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); 
+            text-align: center; border-top: 6px solid var(--primary);
+        }
+
+        /* Scanner Frame Look */
+        #reader { 
+            width: 100% !important; border: none !important; border-radius: 20px; 
+            overflow: hidden; background: #f1f5f9; margin-top: 20px;
+        }
+        
+        #reader__dashboard_section_csr button {
+            background: var(--primary) !important; color: white !important;
+            border-radius: 10px !important; padding: 10px 20px !important;
+            border: none !important; cursor: pointer !important; font-family: 'Poppins' !important;
+        }
+
+        /* Result Messages Styling */
+        #result { margin-top: 25px; font-weight: 600; border-radius: 15px; transition: 0.3s; min-height: 20px; }
+        .success-msg { background: #ecfdf5; color: var(--success); padding: 15px; border: 1px solid #a7f3d0; }
+        .error-msg { background: #fef2f2; color: var(--danger); padding: 15px; border: 1px solid #fecaca; }
+        .processing-msg { background: #eff6ff; color: #3b82f6; padding: 15px; border: 1px solid #bfdbfe; }
+
+        .back-link { margin-bottom: 20px; text-decoration: none; color: #64748b; font-size: 14px; transition: 0.3s; }
+        .back-link:hover { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-symbol"><i class="fas fa-graduation-cap" style="color: white;"></i></div>
+        <span>SmartCampus</span>
+    </div>
+    <div class="sidebar-menu">
+        <a href="{% url 'home' %}"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+        <a href="{% url 'qr_scanner' %}" class="active"><i class="fas fa-qrcode"></i> <span>QR Scanner</span></a>
+        <a href="{% url 'mark_attendance' %}"><i class="fas fa-calendar-check"></i> <span>Attendance</span></a>
+        <a href="{% url 'logout' %}" style="margin-top: 50px; color: #fca5a5;"><i class="fas fa-power-off"></i> <span>Logout</span></a>
+    </div>
+</div>
+
+<div class="content">
+    <a href="{% url 'home' %}" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    
+    <div class="scanner-card">
+        <h2 style="margin:0; font-weight:700;"><i class="fas fa-camera" style="color: var(--primary);"></i> AI Attendance</h2>
+        <p style="color: #64748b; margin-top: 5px;">Point the QR code towards the camera</p>
+        
+        <div id="reader"></div>
+        <div id="result"></div>
+    </div>
+</div>
+
+<script>
+    let isScanning = true;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        if (!isScanning) return;
+
+        isScanning = false; 
+        const resultDiv = document.getElementById('result');
+        resultDiv.className = "processing-msg";
+        resultDiv.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing: ${decodedText}`;
+
+        fetch("{% url 'qr_scanner' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: "roll_no=" + decodedText
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                resultDiv.className = "success-msg";
+                resultDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}`;
+            } else {
+                resultDiv.className = "error-msg";
+                resultDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.message}`;
+            }
+            
+            setTimeout(() => {
+                resultDiv.innerText = "";
+                resultDiv.className = "";
+                isScanning = true;
+            }, 3000);
+        })
+        .catch(err => {
+            console.error("Error:", err);
+            isScanning = true;
+        });
+    }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", 
+        { 
+            fps: 15, 
+            qrbox: {width: 250, height: 250},
+            rememberLastUsedCamera: true,
+            aspectRatio: 1.0
+        }
+    );
+    html5QrcodeScanner.render(onScanSuccess);
+</script>
+
+</body>
+</html>

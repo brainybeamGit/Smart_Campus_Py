@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examination Result | Smart Campus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --ksv-blue: #004a8e;
+            --ksv-yellow: #febd17;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7fe;
+            margin: 0;
+            padding: 20px;
+        }
+        .result-container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header-banner {
+            background: var(--ksv-blue);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        /* Home Button Style */
+        .home-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+        .home-link:hover { background: var(--ksv-yellow); color: var(--ksv-blue); }
+
+        .search-section {
+            padding: 30px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            font-size: 16px;
+        }
+        input[type="text"]:focus { border-color: var(--ksv-blue); }
+        
+        .btn-check {
+            background: var(--ksv-yellow);
+            color: var(--ksv-blue);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-check:hover { background: #e5a915; transform: translateY(-2px); }
+
+        .marksheet-card {
+            padding: 40px;
+            position: relative;
+        }
+        .university-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .student-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background: #f1f5f9;
+            color: var(--ksv-blue);
+            padding: 15px;
+            text-align: left;
+            border-bottom: 3px solid var(--ksv-yellow);
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .grade-pass { color: #22c55e; font-weight: bold; }
+        
+        .final-score {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--ksv-blue);
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .print-btn {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        @media print {
+            .search-section, .print-btn, .home-link, .nav-container { display: none; }
+            body { background: white; padding: 0; }
+            .result-container { box-shadow: none; border: 1px solid #eee; margin: 0; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="result-container">
+        <div class="header-banner">
+            <a href="/" class="home-link"><i class="fas fa-home"></i> Dashboard</a>
+            
+            <h1 style="margin:0; text-transform: uppercase;">SMART CAMPUS PRO UNIVERSITY</h1> 
+            <p style="margin:5px 0 0 0; opacity: 0.8; letter-spacing: 2px;">OFFICIAL EXAMINATION PORTAL</p>
+        </div>
+
+        <div class="search-section">
+            <h3>Check Your Result</h3>
+            <form method="POST" class="search-box">
+                {% csrf_token %}
+                <input type="text" name="roll_no" placeholder="Enter Roll Number (e.g., KSV101)" required>
+                <button type="submit" class="btn-check">VIEW RESULT</button>
+            </form>
+        </div>
+
+        {% if results %}
+        <div class="marksheet-card" id="printableMarksheet">
+            <div class="university-logo">
+                <i class="fas fa-graduation-cap fa-3x" style="color: var(--ksv-blue);"></i>
+                <h2 style="margin: 10px 0;">STATEMENT OF MARKS</h2>
+            </div>
+
+            <div class="student-info-grid">
+    <div>
+        <p><strong>Student Name:</strong> {{ student.name }}</p>
+        <p><strong>Roll Number:</strong> {{ student.roll_no }}</p>
+    </div>
+    <div style="text-align: right;">
+        <p><strong>Course:</strong> {{ student.course|default:"B.Tech / Computer Science" }}</p>
+        <p><strong>Date:</strong> {% now "d M Y" %}</p>
+    </div>
+</div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject Name</th>
+                        <th>Max Marks</th>
+                        <th>Marks Obtained</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr>
+                        <td>{{ r.subject_name }}</td>
+                        <td>{{ r.total_marks }}</td>
+                        <td>{{ r.obtained_marks }}</td>
+                        <td>
+                            {% if r.obtained_marks >= 40 %}
+                                <span class="grade-pass">PASS</span>
+                            {% else %}
+                                <span style="color: red; font-weight: bold;">FAIL</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="final-score">
+                <div style="font-size: 18px;">FINAL PERCENTAGE: <strong>{{ gpa }}%</strong></div>
+                <div style="font-size: 24px;">GPA: <strong>{{ gpa|floatformat:2 }}</strong></div>
+            </div>
+
+            <button class="print-btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Download Marksheet (PDF)
+            </button>
+        </div>
+        {% elif request.method == "POST" %}
+            <div style="padding: 40px; text-align: center; color: #ef4444;">
+                <i class="fas fa-exclamation-circle fa-3x"></i>
+                <p>Roll Number <strong>{{ request.POST.roll_no }}</strong> ka result nahi mila.<br>Kripya sahi Roll Number daalein.</p>
+            </div>
+        {% endif %}
+    </div> 
+
+    <p style="text-align: center; color: #777; font-size: 12px;">© 2026 Smart Campus Pro Examination Cell</p>
+
+</body>
+</html>

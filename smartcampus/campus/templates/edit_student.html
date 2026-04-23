@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student | Smart Campus Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --ksv-blue: #004a8e;
+            --ksv-yellow: #febd17;
+            --bg-light: #f4f7fe;
+            --border: #e2e8f0;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+        .breadcrumb a {
+            color: var(--ksv-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .breadcrumb a:hover { text-decoration: underline; }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .page-header h1 {
+            margin: 0;
+            color: var(--ksv-blue);
+            font-weight: 700;
+            font-size: 28px;
+        }
+        .page-header p {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .back-btn {
+            background: white;
+            color: var(--ksv-blue);
+            border: 1px solid var(--border);
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+        .back-btn:hover {
+            background: var(--ksv-blue);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--ksv-blue);
+            font-weight: 700;
+            margin: 0 0 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--bg-light);
+        }
+        .section-title i { color: var(--ksv-yellow); }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 20px;
+            margin-bottom: 28px;
+        }
+        .full-width { grid-column: span 2; }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .field label .req { color: var(--danger); margin-left: 2px; }
+
+        .input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: #fafbfd;
+            font-size: 14px;
+            font-family: inherit;
+            color: #1e293b;
+            outline: none;
+            transition: 0.2s;
+        }
+        .input:focus, select:focus {
+            border-color: var(--ksv-blue);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(0, 74, 142, 0.1);
+        }
+
+        .file-field {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background: #fafbfd;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .file-field:hover {
+            border-color: var(--ksv-blue);
+            background: #f0f7ff;
+        }
+        .file-field i {
+            font-size: 28px;
+            color: var(--ksv-blue);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .file-field input[type="file"] {
+            display: block;
+            margin: 8px auto 0;
+            font-size: 12px;
+        }
+
+        .current-photo {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid var(--border);
+            margin-bottom: 8px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 2px solid var(--bg-light);
+        }
+        .btn {
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: 0.25s;
+            font-family: inherit;
+        }
+        .btn-cancel {
+            background: #f1f5f9;
+            color: var(--text-muted);
+        }
+        .btn-cancel:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, var(--ksv-blue), #003366);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 74, 142, 0.25);
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 74, 142, 0.35);
+        }
+
+        .msg {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .msg-error {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+        .msg-success {
+            background: #d1fae5;
+            border-left: 4px solid var(--success);
+            color: #065f46;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            .card { padding: 24px; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'master_admin' %}"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+            <a href="{% url 'students_page' %}">Students</a>
+            <i class="fas fa-chevron-right" style="font-size: 10px;"></i>
+            <span>Edit</span>
+        </div>
+
+        <div class="page-header">
+            <div>
+                <h1><i class="fas fa-user-edit"></i> Edit Student</h1>
+                <p>Update profile details for <strong>{{ student.name }}</strong>.</p>
+            </div>
+            <a href="{% url 'students_page' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="msg {% if message.tags == 'success' %}msg-success{% else %}msg-error{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="card">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h3 class="section-title"><i class="fas fa-id-card"></i> Personal Information</h3>
+                <div class="form-grid">
+                    <div class="field full-width">
+                        <label>Full Name <span class="req">*</span></label>
+                        <input class="input" type="text" name="name" value="{{ student.name }}" placeholder="e.g. Rahul Sharma" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Roll Number <span class="req">*</span></label>
+                        <input class="input" type="text" name="roll_no" value="{{ student.roll_no }}" placeholder="e.g. 22CS101" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Course</label>
+                        <select name="course">
+                            <option value="">— Select Course —</option>
+                            {% for c in courses %}
+                                <option value="{{ c.course_name }}" {% if student.course == c.course_name %}selected{% endif %}>{{ c.course_name }} ({{ c.course_code }})</option>
+                            {% endfor %}
+                            {% if student.course and student.course not in courses %}
+                                <option value="{{ student.course }}" selected>{{ student.course }} (current)</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Email Address</label>
+                        <input class="input" type="email" name="email" value="{{ student.email|default_if_none:'' }}" placeholder="student@college.com">
+                    </div>
+
+                    <div class="field">
+                        <label>Phone Number</label>
+                        <input class="input" type="tel" name="phone" value="{{ student.phone|default_if_none:'' }}" placeholder="+91 98765 43210">
+                    </div>
+
+                    <div class="field full-width">
+                        <label>Student Photo</label>
+                        {% if student.photo %}
+                            <div style="margin-bottom: 10px;">
+                                <img src="{{ student.photo.url }}" class="current-photo" alt="Current photo">
+                                <div style="font-size: 11px; color: var(--text-muted);">Current photo — upload a new one to replace it.</div>
+                            </div>
+                        {% endif %}
+                        <div class="file-field">
+                            <i class="fas fa-camera"></i>
+                            <div style="font-size: 13px; color: var(--text-muted);">Upload a new photo for the ID card</div>
+                            <input type="file" name="photo" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                {% if student.user %}
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                    <i class="fas fa-check-circle" style="color: var(--success); font-size: 18px;"></i>
+                    <div style="font-size: 13px; color: #065f46; font-weight: 600;">
+                        This student has a login account: <strong>{{ student.user.username }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="actions">
+                    <a href="{% url 'students_page' %}" class="btn btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

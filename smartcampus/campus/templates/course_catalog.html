@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Catalog | Smart Campus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --ksv-blue: #004a8e;
+            --ksv-yellow: #febd17;
+            --light-bg: #f4f7fe;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--light-bg); 
+            margin: 0; 
+            padding: 20px 5%;
+        }
+
+        .catalog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--ksv-yellow);
+        }
+
+        .catalog-header h1 {
+            color: var(--ksv-blue);
+            font-size: 32px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-group { display: flex; gap: 15px; }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add { background: var(--success); color: white; }
+        .btn-back { background: var(--ksv-blue); color: white; }
+
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: 0.4s ease;
+            position: relative;
+            border: 1px solid #eef2f6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,74,142,0.1);
+        }
+
+        /* Yahan Pointer Cursor add kiya taaki pata chale click karna hai */
+        .card-top {
+            background: var(--ksv-blue);
+            padding: 25px 20px;
+            color: white;
+            text-align: center;
+            cursor: pointer; 
+            transition: 0.3s;
+        }
+        
+        .card-top:active { opacity: 0.9; transform: scale(0.98); }
+
+        .degree-badge {
+            background: var(--ksv-yellow);
+            color: var(--ksv-blue);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 12px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .course-name {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+
+        .card-body { padding: 20px; flex-grow: 1; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* --- SUBJECT SECTION (HIDDEN BY DEFAULT) --- */
+        .subject-section {
+            margin-top: 0;
+            max-height: 0; /* Shuruat mein height zero */
+            overflow: hidden;
+            transition: all 0.4s ease-in-out;
+            padding-top: 0;
+            border-top: 0px dashed #ddd;
+        }
+
+        /* Jab hum click karenge toh ye class add hogi */
+        .subject-section.show {
+            max-height: 500px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+
+        .subject-tag {
+            display: inline-block;
+            background: #f0f4ff;
+            color: #004a8e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin: 3px;
+            border: 1px solid #d0e0ff;
+        }
+
+        .card-footer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 15px 20px;
+            background: #f8faff;
+            border-top: 1px solid #eee;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .edit-btn { background: #fff; color: var(--ksv-blue); border: 1px solid #d0e4ff; }
+        .delete-btn { background: #fff; color: var(--danger); border: 1px solid #fecaca; }
+        .sub-btn { background: var(--ksv-yellow); color: var(--ksv-blue); border: 1px solid #eab308; }
+        
+        .edit-btn:hover { background: var(--ksv-blue); color: white; }
+        .delete-btn:hover { background: var(--danger); color: white; }
+        .sub-btn:hover { background: #eab308; }
+
+    </style>
+</head>
+<body>
+
+    <header class="catalog-header">
+        <h1><i class="fas fa-university"></i> Degree Programs</h1>
+        <div class="btn-group">
+            <a href="{% url 'add_course' %}" class="btn btn-add"><i class="fas fa-plus"></i> Add Degree</a>
+            <a href="{% url 'master_admin' %}" class="btn btn-back"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        </div>
+    </header>
+
+    <div class="course-grid">
+        {% for course in courses %}
+        <div class="course-card">
+            <div class="card-top" onclick="toggleSubjects('subjects-{{ course.id }}')">
+                <div class="degree-badge">Click to View Subjects</div>
+                <h3 class="course-name">{{ course.course_name }}</h3> 
+                <p style="margin:0; opacity:0.8; font-size: 11px;">ID: {{ course.course_code }}</p>
+            </div>
+            
+            <div class="card-body">
+                <div class="info-row">
+                    <span><i class="fas fa-user-tie"></i> H.O.D:</span>
+                    <span style="font-weight: 600; color: var(--ksv-blue);">{% if course.faculty %}{{ course.faculty }}{% else %}Not Assigned{% endif %}</span>
+                </div>
+
+                <div id="subjects-{{ course.id }}" class="subject-section">
+                    <p style="font-size: 13px; font-weight: 700; color: #333; margin-bottom: 8px;">
+                        <i class="fas fa-book"></i> Subjects:
+                    </p>
+                    {% for subject in course.subjects.all %}
+                        <span class="subject-tag">{{ subject.subject_name }}</span>
+                    {% empty %}
+                        <p style="font-size: 11px; color: #999; font-style: italic;">No subjects added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <a href="{% url 'add_subject' course.id %}" class="action-btn sub-btn" title="Add Subject">
+                    <i class="fas fa-plus"></i> Sub
+                </a>
+                <a href="{% url 'update_course' course.id %}" class="action-btn edit-btn">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'delete_course' course.id %}" class="action-btn delete-btn" onclick="return confirm('Are you sure you want to delete this course?')">
+                    <i class="fas fa-trash"></i> Del
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; grid-column: 1/-1; padding: 50px;">
+            <p style="color: #777;">Bhai, abhi koi degree add nahi ki hai!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        function toggleSubjects(subjectId) {
+            const element = document.getElementById(subjectId);
+            element.classList.toggle('show');
+        }
+    </script>
+
+</body>
+</html>

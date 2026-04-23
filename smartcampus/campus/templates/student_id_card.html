@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ID | {{ student.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* ID CARD MAIN CONTAINER */
+        .id-card {
+            width: 380px;
+            background: white;
+            border-radius: 35px;
+            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.15);
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: transform 0.4s ease;
+        }
+
+        .id-card:hover { transform: translateY(-10px); }
+
+        /* HEADER GRADIENT */
+        .header-bg {
+            background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+            height: 160px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        /* PHOTO BOX */
+        .photo-border {
+            width: 130px;
+            height: 130px;
+            background: white;
+            border-radius: 40px;
+            margin: -65px auto 0;
+            position: relative;
+            padding: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .student-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 32px;
+            object-fit: cover;
+            background: #f1f5f9;
+        }
+
+        /* DATA FIELDS - FIXED CSS */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .label {
+            font-weight: 800;
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .value {
+            font-weight: 700;
+            font-size: 13px;
+            color: #1e293b;
+        }
+
+        /* WATERMARK */
+        .watermark {
+            position: absolute;
+            bottom: 60px;
+            right: -20px;
+            font-size: 80px;
+            font-weight: 900;
+            color: rgba(99, 102, 241, 0.03);
+            transform: rotate(-15deg);
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .id-card { box-shadow: none; border: 1px solid #ddd; transform: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'home' %}" class="no-print fixed top-6 left-6 bg-white p-4 rounded-2xl shadow-lg text-indigo-600 font-black flex items-center gap-2 hover:scale-105 transition-all z-50">
+        <i class="fas fa-arrow-left"></i> EXIT TO DASHBOARD
+    </a>
+
+    <div class="id-card">
+        <div class="header-bg">
+            <div class="flex justify-center items-center gap-2 mb-1">
+                <i class="fas fa-shield-alt text-2xl"></i>
+                <span class="font-black text-xl tracking-tighter uppercase">Smart Campus</span>
+            </div>
+            <h2 class="font-extrabold text-[14px] tracking-[2px] opacity-90">PRO IDENTITY CARD</h2>
+            <div class="watermark">CAMPUS</div>
+        </div>
+
+        <div class="photo-border">
+            {% if student.photo %}
+                <img src="{{ student.photo.url }}" class="student-img">
+            {% else %}
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed={{ student.name }}" class="student-img">
+            {% endif %}
+        </div>
+
+        <div class="text-center mt-4 px-8">
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight uppercase">{{ student.name|default:"New Student" }}</h1>
+            <p class="text-indigo-600 font-bold text-xs tracking-[4px] mb-6 uppercase">Verified Member</p>
+
+            <div class="bg-slate-50 rounded-[2rem] p-6 mb-6">
+                <div class="info-row">
+                    <span class="label">Roll Number</span>
+                    <span class="value">#{{ student.roll_no|default:"0000" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Course</span>
+                    <span class="value">{{ student.course|default:"Engineering" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">Validity</span>
+                    <span class="value">2024 - 2028</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 mb-8 bg-white border-2 border-dashed border-slate-100 p-4 rounded-3xl">
+                <div class="text-left">
+                    <p class="text-[9px] font-black text-slate-400 uppercase leading-none">Scan for</p>
+                    <p class="text-sm font-black text-slate-800 uppercase">Verification</p>
+                </div>
+                <div class="h-16 w-16 bg-white">
+                    {% if student.qr_code %}
+                        <img src="{{ student.qr_code.url }}" class="w-full h-full">
+                    {% else %}
+                        <i class="fas fa-qrcode text-5xl text-slate-200"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 p-4 text-center">
+            <p class="text-[9px] text-white font-bold tracking-[2px] uppercase opacity-80">
+                <i class="fas fa-map-marker-alt text-indigo-400 mr-2"></i> Authorized Personnel Only
+            </p>
+        </div>
+    </div>
+
+    <button onclick="window.print()" class="no-print fixed bottom-10 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black shadow-2xl hover:bg-indigo-600 transition-all flex items-center gap-3">
+        <i class="fas fa-print"></i> SAVE AS PDF
+    </button>
+
+</body>
+</html>

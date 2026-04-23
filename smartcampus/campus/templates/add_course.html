@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add New Degree - Smart Campus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-blue-50 min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-blue-600">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2 text-center">Add New Degree</h2>
+        <p class="text-center text-gray-500 text-sm mb-6">Select a program to add to the catalog</p>
+        
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">Select Degree Program</label>
+                <select name="course_name" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none font-semibold text-gray-700" required>
+                    <option value="" disabled selected>-- Choose Program --</option>
+                    <optgroup label="Undergraduate (UG)">
+                        <option value="BCA">BCA (Bachelor of Computer Applications)</option>
+                        <option value="BBA">BBA (Bachelor of Business Administration)</option>
+                        <option value="B.COM">B.COM (Bachelor of Commerce)</option>
+                        <option value="B.SC">B.SC (Bachelor of Science)</option>
+                    </optgroup>
+                    <optgroup label="Postgraduate (PG)">
+                        <option value="MCA">MCA (Master of Computer Applications)</option>
+                        <option value="MBA">MBA (Master of Business Administration)</option>
+                        <option value="M.COM">M.COM (Master of Commerce)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">Program/Course Code</label>
+                <input type="text" name="course_code" placeholder="e.g. BCA-2026" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-1">Assign H.O.D (Faculty)</label>
+                <select name="faculty" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+                    <option value="">-- Select Faculty --</option>
+                    {% for f in faculties %}
+                        <option value="{{ f.id }}">{{ f.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition transform active:scale-95 mt-4">
+                <i class="fas fa-plus-circle mr-2"></i>Register Program
+            </button>
+
+            <a href="{% url 'courses_page' %}" class="block text-center text-gray-500 hover:text-blue-600 text-sm mt-4">
+                <i class="fas fa-times mr-1"></i> Cancel & Go Back
+            </a>
+        </form>
+    </div>
+</body>
+</html>

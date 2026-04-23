@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Campus</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f1f5f9; margin: 0; padding: 0; }
+        nav { background: #4f46e5; padding: 15px; color: white; text-align: center; }
+        nav a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Dashboard</a>
+        <a href="/attendance/">Attendance</a>
+        <a href="/library/">Library</a>
+        <a href="/student-profile/">Profiles</a>
+    </nav>
+
+<div class="container" style="max-width: 1000px; margin: 40px auto; font-family: 'Poppins', sans-serif;">
+
+
+
+    <div class="search-section" style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; margin-bottom: 30px;">
+
+        <h2 style="color: #4f46e5; margin-bottom: 20px;"><i class="fas fa-qrcode"></i> Student Profile Lookup</h2>
+
+        
+
+        <video id="preview" style="width: 100%; max-width: 300px; border-radius: 15px; border: 3px solid #4f46e5; margin-bottom: 20px;"></video>
+
+
+
+        <form method="GET" action="" id="search-form">
+
+            <input type="text" name="roll_no" id="roll_no" placeholder="Scan QR or Enter Roll No..." 
+
+                   style="width: 60%; padding: 15px; border-radius: 10px; border: 2px solid #ddd; font-size: 16px; outline: none;">
+
+            <button type="submit" style="padding: 15px 30px; background: #4f46e5; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 16px; margin-left: 10px;">
+
+                <i class="fas fa-search"></i> View Profile
+
+            </button>
+
+        </form>
+
+    </div>
+
+
+
+    {% if student %}
+
+    <div class="profile-card" style="background: white; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); overflow: hidden;">
+
+        
+
+        <div style="background: linear-gradient(135deg, #4f46e5, #9333ea); height: 150px; position: relative;">
+
+            <div style="position: absolute; bottom: -50px; left: 50px; width: 130px; height: 130px; background: #fff; border-radius: 25px; border: 6px solid white; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; color: #4f46e5; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+
+                {{ student.name.0 }}
+
+            </div>
+
+        </div>
+
+
+
+        <div style="padding: 70px 50px 40px 50px;">
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+
+                <div>
+
+                    <h1 style="margin: 0; font-size: 32px; color: #1e293b;">{{ student.name }}</h1>
+
+                    <p style="margin: 5px 0; color: #64748b; font-size: 18px;">
+
+                        Roll No: <span style="color: #4f46e5; font-weight: bold;">{{ student.roll_no }}</span> | Course: {{ student.course.course_name|default:"General" }}
+
+                    </p>
+
+                </div>
+
+                <div style="text-align: right;">
+
+                    <span style="background: #e0e7ff; color: #4338ca; padding: 10px 20px; border-radius: 12px; font-weight: bold; font-size: 18px;">
+
+                        Wallet: ₹{{ student.wallet_balance|default:"0.00" }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+
+            <hr style="margin: 40px 0; border: 0; border-top: 1px solid #f1f5f9;">
+
+
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+
+                
+
+                <div style="background: #f0fdf4; padding: 25px; border-radius: 20px; border: 1px solid #dcfce7;">
+
+                    <h3 style="color: #166534; margin-top: 0;"><i class="fas fa-calendar-check"></i> Attendance Summary</h3>
+
+                    <p style="font-size: 16px; color: #166534;">Total Days Present: <b>{{ attendance_count }}</b></p>
+
+                    <p style="font-size: 14px; color: #166534; opacity: 0.8;">Last marked: {{ student.attendance_set.last.date|default:"No records" }}</p>
+
+                </div>
+
+
+
+                <div style="background: #fffbeb; padding: 25px; border-radius: 20px; border: 1px solid #fef3c7;">
+
+                    <h3 style="color: #92400e; margin-top: 0;"><i class="fas fa-book"></i> Library Status</h3>
+
+                    {% if pending_books %}
+
+                        <ul style="padding-left: 20px; color: #92400e;">
+
+                            {% for book in pending_books %}
+
+                                <li style="margin-bottom: 5px;">{{ book.book_name }} <span style="font-size: 12px;">(Due: {{ book.return_date }})</span></li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    {% else %}
+
+                        <p style="color: #92400e;">No books currently issued.</p>
+
+                    {% endif %}
+
+                </div>
+
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% elif request.GET.roll_no %}
+
+    <div style="text-align: center; margin-top: 50px; color: #ef4444;">
+
+        <i class="fas fa-exclamation-triangle" style="font-size: 50px;"></i>
+
+        <p>Bhai, Roll No <b>{{ request.GET.roll_no }}</b> ka koi student nahi mila!</p>
+
+    </div>
+
+    {% endif %}
+
+
+
+</div>
+
+
+
+<script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
+<script>
+
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+
+    scanner.addListener('scan', function (content) {
+
+        document.getElementById('roll_no').value = content;
+
+        document.getElementById('search-form').submit();
+
+    });
+
+
+
+    Instascan.Camera.getCameras().then(function (cameras) {
+
+        if (cameras.length > 0) {
+
+            scanner.start(cameras[0]);
+
+        } else {
+
+            console.error('No cameras found.');
+
+        }
+
+    }).catch(function (e) {
+
+        console.error(e);
+
+    });
+
+</script>
+
+</body>
+</html>

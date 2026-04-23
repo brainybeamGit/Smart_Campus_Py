@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt_{{ payment.receipt_no }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        
+        /* Receipt Container */
+        .receipt-card {
+            background: white;
+            width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            border: 1px solid #ddd;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80px;
+            color: rgba(0, 0, 0, 0.03);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            font-weight: bold;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #6366f1;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo-area h2 { margin: 0; color: #1e293b; font-size: 28px; }
+        .logo-area p { margin: 5px 0 0; color: #64748b; font-size: 14px; }
+        .receipt-label { text-align: right; }
+        .receipt-label h1 { margin: 0; color: #6366f1; font-size: 32px; letter-spacing: 2px; }
+
+        /* Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .detail-box b { color: #64748b; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .detail-box p { margin: 0; font-size: 16px; font-weight: 600; color: #1e293b; }
+
+        /* Payment Table */
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .payment-table th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 13px; }
+        .payment-table td { padding: 15px 12px; border-bottom: 1px solid #f1f5f9; font-size: 15px; }
+        
+        .total-row { background: #fdfdfd; }
+        .total-row td { font-size: 18px; font-weight: bold; color: #6366f1; border-bottom: none; }
+
+        /* Footer & Sign */
+        .footer {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .terms { font-size: 11px; color: #94a3b8; width: 60%; }
+        .signature-box { text-align: center; width: 150px; }
+        .signature-line { border-top: 1px solid #1e293b; margin-top: 40px; padding-top: 5px; font-size: 13px; font-weight: bold; }
+
+        /* Print Button */
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .btn-print {
+            background: #6366f1;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .receipt-card { box-shadow: none; border: none; width: 100%; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print Receipt</button>
+    </div>
+
+    <div class="receipt-card">
+        <div class="watermark">PAID - SMART CAMPUS</div>
+
+        <div class="header">
+            <div class="logo-area">
+                <h2>SMART CAMPUS <span style="color: #6366f1;">PRO</span></h2>
+                <p>123 Education Hub, Gujarat, India</p>
+                <p>Contact: +91 98765 43210</p>
+            </div>
+            <div class="receipt-label">
+                <h1>RECEIPT</h1>
+                <p style="margin:0; font-weight: bold;">#{{ payment.receipt_no }}</p>
+            </div>
+        </div>
+
+        <div class="details-grid">
+            <div class="detail-box">
+                <b>Student Name</b>
+                <p>{{ payment.student.name }}</p>
+            </div>
+            <div class="detail-box">
+                <b>Roll Number</b>
+                <p>{{ payment.student.roll_no }}</p>
+            </div>
+            <div class="detail-box">
+                <b>Date of Payment</b>
+                <p>{{ payment.date_paid|date:"d M, Y" }}</p>
+            </div>
+            <div class="detail-box">
+                <b>Payment Mode</b>
+                <p>Online/Cash</p>
+            </div>
+        </div>
+
+        <table class="payment-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ payment.get_fee_type_display }} Payment for Academic Year 2025-26</td>
+                    <td><span style="color: #10b981; font-weight: bold;">● {{ payment.status }}</span></td>
+                    <td style="text-align: right; font-weight: bold;">₹ {{ payment.amount }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="2" style="text-align: right;">Grand Total:</td>
+                    <td style="text-align: right;">₹ {{ payment.amount }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <div class="terms">
+                <p><b>Notes:</b></p>
+                <ul>
+                    <li>This is a computer-generated document, no signature required.</li>
+                    <li>Fees once paid are non-refundable under any circumstances.</li>
+                    <li>Please keep this receipt for future reference.</li>
+                </ul>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">Authorized Signatory</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

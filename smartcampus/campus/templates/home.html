@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Campus</title>
+</head>
+<body>
+
+<h1>Welcome to Smart Campus</h1>
+
+<!-- Add Student Button -->
+<a href="/add/">➕ Add Student</a>
+
+<h2>Student List</h2>
+
+<table border="1">
+<tr>
+    <th>Name</th>
+    <th>Enrollment</th>
+    <th>Department</th>
+    <th>Email</th>
+</tr>
+
+{% for student in students %}
+<tr>
+    <td>{{ student.name }}</td>
+    <td>{{ student.enrollment_no }}</td>
+    <td>{{ student.department }}</td>
+    <td>{{ student.email }}</td>
+</tr>
+{% endfor %}
+
+</table>
+
+</body>
+</html>

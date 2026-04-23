@@ -1,0 +1,48 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #6366f1; --sidebar-bg: #111827; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: #f8fafc; }
+        
+        /* Sidebar Design */
+        .sidebar { width: 260px; background: var(--sidebar-bg); height: 100vh; position: fixed; color: white; z-index: 1000; }
+        .sidebar-header { padding: 30px 25px; font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-menu { padding: 20px 0; }
+        .sidebar a { display: flex; align-items: center; color: #94a3b8; padding: 15px 25px; text-decoration: none; transition: 0.3s; }
+        .sidebar a:hover { background: rgba(255,255,255,0.05); color: white; border-left: 4px solid var(--primary); }
+        .sidebar i { width: 25px; margin-right: 10px; }
+
+        .main-content { margin-left: 260px; min-height: 100vh; }
+        
+        @media print { .sidebar { display: none; } .main-content { margin-left: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-graduation-cap"></i> <span>SmartCampus</span>
+        </div>
+        <div class="sidebar-menu">
+            <a href="/"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="/students/"><i class="fas fa-user-graduate"></i> Students</a>
+            <a href="/exam-portal/"><i class="fas fa-file-invoice"></i> Exam Portal</a>
+            <a href="/qr-scanner/"><i class="fas fa-qrcode"></i> Scanner</a>
+            <a href="/logout/"><i class="fas fa-power-off"></i> Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - Smart Campus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
+        .custom-shadow { box-shadow: 0 10px 40px -10px rgba(99, 102, 241, 0.15); }
+        .radio-card:checked + .attendance-label { transform: scale(1.1); }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div class="p-4 md:p-10 max-w-5xl mx-auto">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <a href="{% url 'home' %}" class="group text-indigo-600 font-bold text-sm flex items-center gap-2 mb-2 transition-all">
+                    <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i> Dashboard
+                </a>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight">Attendance Ledger</h1>
+                <p class="text-slate-500 font-medium" id="display-date">Select date to start marking</p>
+            </div>
+            
+            <div class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+                <i class="fas fa-calendar-alt text-indigo-500 ml-3"></i>
+                <input type="date" id="attendance-date" 
+                       class="border-none bg-transparent text-slate-700 font-bold outline-none cursor-pointer">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm text-center">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Students</p>
+                <h3 class="text-xl font-bold text-slate-800">120</h3>
+            </div>
+            <div class="bg-emerald-50 p-4 rounded-3xl border border-emerald-100 text-center">
+                <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Present</p>
+                <h3 class="text-xl font-bold text-emerald-600" id="present-count">0</h3>
+            </div>
+            <div class="bg-rose-50 p-4 rounded-3xl border border-rose-100 text-center">
+                <p class="text-[10px] font-black text-rose-500 uppercase tracking-widest">Absent</p>
+                <h3 class="text-xl font-bold text-rose-600" id="absent-count">0</h3>
+            </div>
+            <button class="bg-indigo-600 text-white rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95">
+                Save All
+            </button>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50/50 text-slate-400 text-[10px] uppercase font-black tracking-widest border-b border-slate-100">
+                    <tr>
+                        <th class="p-6">Roll No</th>
+                        <th class="p-6">Student Details</th>
+                        <th class="p-6 text-center">Attendance Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    <tr class="hover:bg-slate-50/50 transition-all group">
+                        <td class="p-6">
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">#101</span>
+                        </td>
+                        <td class="p-6">
+                            <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">Rahul Sharma</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">B.Tech (CS) - 3rd Year</div>
+                        </td>
+                        <td class="p-6">
+                            <div class="flex justify-center items-center gap-6">
+                                <label class="relative cursor-pointer flex flex-col items-center group/btn">
+                                    <input type="radio" name="st1" value="P" class="hidden peer" checked onchange="updateCounts()">
+                                    <div class="w-14 h-14 rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-300 font-black text-lg transition-all 
+                                                peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-200
+                                                group-hover/btn:border-emerald-200">
+                                        P
+                                    </div>
+                                    <span class="text-[8px] font-black mt-1 text-slate-400 peer-checked:text-emerald-500 uppercase">Present</span>
+                                </label>
+
+                                <label class="relative cursor-pointer flex flex-col items-center group/btn">
+                                    <input type="radio" name="st1" value="A" class="hidden peer" onchange="updateCounts()">
+                                    <div class="w-14 h-14 rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-300 font-black text-lg transition-all 
+                                                peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 peer-checked:shadow-lg peer-checked:shadow-rose-200
+                                                group-hover/btn:border-rose-200">
+                                        A
+                                    </div>
+                                    <span class="text-[8px] font-black mt-1 text-slate-400 peer-checked:text-rose-500 uppercase">Absent</span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-slate-50/50 transition-all group">
+                        <td class="p-6">
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg font-black text-xs">#102</span>
+                        </td>
+                        <td class="p-6">
+                            <div class="font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">Priya Verma</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">B.Tech (CS) - 3rd Year</div>
+                        </td>
+                        <td class="p-6">
+                            <div class="flex justify-center items-center gap-6">
+                                <label class="relative cursor-pointer flex flex-col items-center group/btn">
+                                    <input type="radio" name="st2" value="P" class="hidden peer" checked onchange="updateCounts()">
+                                    <div class="w-14 h-14 rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-300 font-black text-lg transition-all 
+                                                peer-checked:bg-emerald-500 peer-checked:text-white peer-checked:border-emerald-500 peer-checked:shadow-lg peer-checked:shadow-emerald-200">
+                                        P
+                                    </div>
+                                    <span class="text-[8px] font-black mt-1 text-slate-400 peer-checked:text-emerald-500 uppercase">Present</span>
+                                </label>
+                                <label class="relative cursor-pointer flex flex-col items-center group/btn">
+                                    <input type="radio" name="st2" value="A" class="hidden peer" onchange="updateCounts()">
+                                    <div class="w-14 h-14 rounded-2xl border-2 border-slate-100 flex items-center justify-center text-slate-300 font-black text-lg transition-all 
+                                                peer-checked:bg-rose-500 peer-checked:text-white peer-checked:border-rose-500 peer-checked:shadow-lg peer-checked:shadow-rose-200">
+                                        A
+                                    </div>
+                                    <span class="text-[8px] font-black mt-1 text-slate-400 peer-checked:text-rose-500 uppercase">Absent</span>
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-8 flex justify-center">
+            <button class="bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black shadow-2xl hover:bg-indigo-600 transition-all transform active:scale-95 flex items-center gap-3">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Final Submit Attendance</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Set today's date
+        const dateInput = document.getElementById('attendance-date');
+        const displayDate = document.getElementById('display-date');
+        const today = new Date();
+        dateInput.valueAsDate = today;
+        displayDate.innerText = "Marking for " + today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        // Update counts dynamically (Faculty ko real-time dikhega)
+        function updateCounts() {
+            const total = document.querySelectorAll('input[type="radio"]').length / 2;
+            const present = document.querySelectorAll('input[value="P"]:checked').length;
+            const absent = document.querySelectorAll('input[value="A"]:checked').length;
+            
+            document.getElementById('present-count').innerText = present;
+            document.getElementById('absent-count').innerText = absent;
+        }
+
+        // Initialize counts on load
+        updateCounts();
+    </script>
+</body>
+</html>
